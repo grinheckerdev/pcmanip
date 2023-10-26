@@ -1,0 +1,4 @@
+sv-ttk
+psutil
+pycryptodome
+pypiwin32
