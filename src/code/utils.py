@@ -78,13 +78,17 @@ def check_version():
 		code = req.text
 		with open(os.path.join(os.path.dirname(__file__), "main.py"), "r") as f:
 			cur_code = f.read()
-		newest_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", code)[1]
-		current_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", cur_code)[1]
+		newest_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", code)
+		if len(newest_version) != 3: return False
+		newest_version = newest_version[1]
+		current_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", cur_code)
+		if len(current_version) != 3: return False
+		current_version = current_version[1]
 		newest_version = [int(v) for v in newest_version[1:].split(".")]
 		current_version = [int(v) for v in current_version[1:].split(".")]
 		return newest_version > current_version
 	except ConnectionError:
-		return True
+		return False
 
 if __name__ == "__main__":
 	check_version()

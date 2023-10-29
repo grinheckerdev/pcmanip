@@ -39,9 +39,9 @@ for v in param_names.copy().values():
 	if v not in param_syntax:
 		param_syntax[v] = {"params": []}
 
-print(param_names, param_syntax)
+# print(param_names, param_syntax)
 
-__version__ = "v0.1.0.2"
+__version__ = "v0.1.0.3"
 
 class Argv:
 	def __init__(self, data):
@@ -339,7 +339,8 @@ def main_gui(argv):
 	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button
 	
 	if version_outdated:
-		messagebox.showwarning(title="Version outdated", message="This version of pcmanip is outdated! Download new from github.com/grinheckerdev/pcmanip")
+		x = threading.Thread(target=messagebox.showwarning, kwargs=dict(title="Version outdated", message="This version of pcmanip is outdated! Download new from github.com/grinheckerdev/pcmanip"))
+		x.start()
 
 	root = tkinter.Tk()
 	root.title("PCmanip")
