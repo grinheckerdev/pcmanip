@@ -41,7 +41,7 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.6"
+__version__ = "v0.1.0.7"
 
 class Argv:
 	def __init__(self, data):
