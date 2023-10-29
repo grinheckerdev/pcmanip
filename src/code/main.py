@@ -40,6 +40,8 @@ for v in param_names.copy().values():
 
 print(param_names, param_syntax)
 
+__version__ = "v0.1.0.1"
+
 class Argv:
 	def __init__(self, data):
 		self.data = []
@@ -329,7 +331,8 @@ def choose_and_set_wallpaper():
 def send_message_computer_gui():
 	for i in computer_listbox.curselection():
 		h = computer_listbox.get(i)
-		send_message(h, message_text_scrolledtext.get("1.0", tkinter.END))
+		x = threading.Thread(target = send_message, args=(h, message_text_scrolledtext.get("1.0", tkinter.END)))
+		x.start()
 
 def main_gui(argv):
 	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button
