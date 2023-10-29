@@ -7,4 +7,7 @@
 First install python from the [official site](python.org) (python>=3.11)
 Then open the console in the folder of the repository and run
 
-    py.exe -m pip install -r requirments.txt
+For Linux and MacOS:
+    `python3 -m pip install -r requirments.txt`
+For Windows:
+	`py.exe -m pip install -r requirments.txt`
