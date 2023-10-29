@@ -41,7 +41,7 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.3"
+__version__ = "v0.1.0.4"
 
 class Argv:
 	def __init__(self, data):
@@ -335,12 +335,29 @@ def send_message_computer_gui():
 		x = threading.Thread(target = send_message, args=(h, message_text_scrolledtext.get("1.0", tkinter.END)))
 		x.start()
 
+def show_version_warning():
+	cur_ver = get_current_version()
+	if not cur_ver: cur_ver = "?"
+	else: cur_ver = "v"+".".join(map(str, cur_ver))
+
+	new_ver = get_newest_version()
+	if not new_ver: new_ver = "?"
+	else: new_ver = "v"+".".join(map(str, new_ver))
+
+	print(f"Current version: {cur_ver}\nNewest version: {new_ver}")
+
+	messagebox.showwarning(title="Version outdated",
+				message=f"This version of pcmanip is outdated!\nCurrent version: {cur_ver}\nNewest version: {new_ver}\nDownload new version from github.com/grinheckerdev/pcmanip")
+
+
 def main_gui(argv):
 	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button
 	
 	if version_outdated:
-		x = threading.Thread(target=messagebox.showwarning, kwargs=dict(title="Version outdated", message="This version of pcmanip is outdated! Download new from github.com/grinheckerdev/pcmanip"))
+		x = threading.Thread(target = show_version_warning)
 		x.start()
+	else:
+		print("NEWEST VERSION!")
 
 	root = tkinter.Tk()
 	root.title("PCmanip")
@@ -439,7 +456,7 @@ def main_gui(argv):
 	root.mainloop()
 
 if __name__ == '__main__':
-	version_outdated = check_version()
+	version_outdated = version_is_outdated()
 	if "-c" in sys.argv[1:]:
 		main_old(parse_argv(sys.argv[1:]))
 	else:

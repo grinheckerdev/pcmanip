@@ -71,24 +71,40 @@ def check_ip(host):
 def send_message(name, text, time_close=999999):
 	os.system(f"msg /SERVER:{name} * /TIME:{time_close} \"{text}\"")
 
-def check_version():
+def get_newest_version():
 	url = "https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/src/code/main.py"
 	try:
 		req = requests.get(url)
 		code = req.text
-		with open(os.path.join(os.path.dirname(__file__), "main.py"), "r") as f:
-			cur_code = f.read()
 		newest_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", code)
-		if len(newest_version) != 3: return False
+		print(1234, newest_version)
+		if newest_version: newest_version = newest_version[0]
+		if len(newest_version) != 3: return
 		newest_version = newest_version[1]
-		current_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", cur_code)
-		if len(current_version) != 3: return False
-		current_version = current_version[1]
+		print(12345, newest_version)
 		newest_version = [int(v) for v in newest_version[1:].split(".")]
-		current_version = [int(v) for v in current_version[1:].split(".")]
-		return newest_version > current_version
+		return newest_version
 	except ConnectionError:
-		return False
+		return
+
+def get_current_version():
+	with open(os.path.join(os.path.dirname(__file__), "main.py"), "r") as f:
+		cur_code = f.read()
+	current_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", cur_code)
+	if current_version: current_version = current_version[0]
+	if len(current_version) != 3: return
+	current_version = current_version[1]
+	current_version = [int(v) for v in current_version[1:].split(".")]
+	return current_version
+
+def version_is_outdated():
+	newest_version = get_newest_version()
+	print(111, newest_version)
+	if not newest_version: return False
+	current_version = get_current_version()
+	print(111, current_version)
+	if not current_version: return False
+	return newest_version > current_version
 
 if __name__ == "__main__":
 	check_version()
