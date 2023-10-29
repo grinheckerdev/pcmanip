@@ -11,10 +11,11 @@ import ctypes
 import sv_ttk
 import traceback
 import shlex
-from tkinter import filedialog, scrolledtext
+from tkinter import filedialog, scrolledtext, messagebox
 import psutil
 from utils import *
 import platform
+import requests
 
 hosts = []
 root = notebook = frame_remote_manip = computer_listbox = scan_computers_button = shutdown_labelframe = restart_checkbox = restart_var = force_var = force_checkbox = time_var = time_spinbox = shutdown_button = info_labelframe = info_label = frame_personalization = wallpaper_labelframe = open_wallpaper_button = frame_computer_info = computer_info_text = send_message_labelframe = message_text_scrolledtext = send_message_button = None
@@ -40,7 +41,7 @@ for v in param_names.copy().values():
 
 print(param_names, param_syntax)
 
-__version__ = "v0.1.0.1"
+__version__ = "v0.1.0.2"
 
 class Argv:
 	def __init__(self, data):
@@ -336,6 +337,10 @@ def send_message_computer_gui():
 
 def main_gui(argv):
 	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button
+	
+	if version_outdated:
+		messagebox.showwarning(title="Version outdated", message="This version of pcmanip is outdated! Download new from github.com/grinheckerdev/pcmanip")
+
 	root = tkinter.Tk()
 	root.title("PCmanip")
 	if argv["--topmost"]:
@@ -433,6 +438,7 @@ def main_gui(argv):
 	root.mainloop()
 
 if __name__ == '__main__':
+	version_outdated = check_version()
 	if "-c" in sys.argv[1:]:
 		main_old(parse_argv(sys.argv[1:]))
 	else:

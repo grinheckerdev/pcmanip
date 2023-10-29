@@ -2,3 +2,4 @@ sv-ttk
 psutil
 pycryptodome
 pypiwin32
+requests

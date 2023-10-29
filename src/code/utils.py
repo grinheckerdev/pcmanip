@@ -20,6 +20,9 @@ import win32crypt
 from Crypto.Cipher import AES
 import shutil
 import datetime
+import requests
+from requests.exceptions import ConnectionError
+import re
 # datetime.timezone, datetime, datetime.timedelta
 
 def set_wallpaper(path):
@@ -67,3 +70,21 @@ def check_ip(host):
 
 def send_message(name, text, time_close=999999):
 	os.system(f"msg /SERVER:{name} * /TIME:{time_close} \"{text}\"")
+
+def check_version():
+	url = "https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/src/code/main.py"
+	try:
+		req = requests.get(url)
+		code = req.text
+		with open(os.path.join(os.path.dirname(__file__), "main.py"), "r") as f:
+			cur_code = f.read()
+		newest_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", code)[1]
+		current_version = re.findall(r"__version__\s+=\s+(\"|\')(.*)(\"|\')", cur_code)[1]
+		newest_version = [int(v) for v in newest_version[1:].split(".")]
+		current_version = [int(v) for v in current_version[1:].split(".")]
+		return newest_version > current_version
+	except ConnectionError:
+		return True
+
+if __name__ == "__main__":
+	check_version()
