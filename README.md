@@ -25,8 +25,11 @@ For Windows:
 `py.exe ./src/code/main.py`
 
 ## FAQ
-I am sending a message, but it doesn't show up!
+**I am sending a message, but it doesn't show up!***
+
 msg.exe is available only on Windows Pro and higher, we can't fix this.
 
-Can this run on Linux or MacOS?
+
+**Can this run on Linux or MacOS?**
+
 Yes, but there are some commands that work only on windows (like turning off remote computer or sending a message)
