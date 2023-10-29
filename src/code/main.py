@@ -41,7 +41,7 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.5"
+__version__ = "v0.1.0.6"
 
 class Argv:
 	def __init__(self, data):
@@ -369,7 +369,7 @@ def main_gui(argv):
 	time_spinbox = ttk.Spinbox(shutdown_labelframe, from_=1, to=99, textvariable=time_var)
 	time_spinbox.pack(anchor=tkinter.W, pady=5)
 
-	shutdown_button = ttk.Button(shutdown_labelframe, text="shutdown", command=shutdown_computer_gui)
+	shutdown_button = ttk.Button(shutdown_labelframe, text="Shutdown", command=shutdown_computer_gui)
 	shutdown_button.pack(anchor=tkinter.W, pady=5)
 
 	
@@ -379,7 +379,7 @@ def main_gui(argv):
 	message_text_scrolledtext = scrolledtext.ScrolledText(send_message_labelframe, width=30, height=8)
 	message_text_scrolledtext.pack(fill = tkinter.BOTH, expand=True)
 
-	send_message_button = ttk.Button(send_message_labelframe, text="send", command=send_message_computer_gui)
+	send_message_button = ttk.Button(send_message_labelframe, text="Send", command=send_message_computer_gui)
 	send_message_button.pack()
 
 
