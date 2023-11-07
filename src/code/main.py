@@ -16,6 +16,8 @@ import psutil
 from utils import *
 import platform
 import requests
+import keyboard
+import mouse
 
 hosts = []
 root = notebook = frame_remote_manip = computer_listbox = scan_computers_button = shutdown_labelframe = restart_checkbox = restart_var = force_var = force_checkbox = time_var = time_spinbox = shutdown_button = info_labelframe = info_label = frame_personalization = wallpaper_labelframe = open_wallpaper_button = frame_computer_info = computer_info_text = send_message_labelframe = message_text_scrolledtext = send_message_button = None
@@ -34,6 +36,9 @@ for v in param_names.copy().values():
 
 param_syntax = {
 }
+
+flag1 = False
+choice = None
 
 for v in param_names.copy().values():
 	if v not in param_syntax:
@@ -321,6 +326,44 @@ def show_version_warning():
 	messagebox.showwarning(title="Version outdated",
 				message=f"This version of pcmanip is outdated!\nCurrent version: {cur_ver}\nNewest version: {new_ver}\nDownload new version from github.com/grinheckerdev/pcmanip")
 
+def key_and_set_flag(l):
+	global choice
+	while True:
+		key = keyboard.read_key(suppress=True)
+		choice = key
+		l["text"] = f"> {key} <"
+
+
+def set_flag1(v):
+	global flag1
+	flag1 = v
+
+def key_select_popup(block_keys = []):
+	global flag1, choice
+	flag1 = False
+	choice = None
+	r = tkinter.Tk()
+	r.update()
+	l = ttk.Label(r, text="> Press any key <")
+	l.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+	b1 = ttk.Button(r, text="Ok", command = lambda: set_flag1(True))
+	b1.grid(row=1, column=0)
+	b2 = ttk.Button(r, text="Cancel", command = lambda: set_flag1(True))
+	b2.grid(row=1, column=0)
+	r.update()
+	x = threading.Thread(target=key_and_set_flag, args=(l,))
+	x.start()
+	while not flag1:
+		root.
+	r.destroy()
+	return choice
+
+
+def add_block_key():
+	result = key_select_popup()
+
+def remove_block_key():
+	pass
 
 def main_gui(argv):
 	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button
@@ -418,6 +461,25 @@ def main_gui(argv):
 	computer_info_update_button.pack()
 
 	notebook.add(frame_computer_info, text="Computer info")
+
+	################################################################################################################################################
+
+	frame_keyboard_mouse = ttk.Frame(notebook)
+	frame_keyboard_mouse.pack(fill=tkinter.BOTH, expand=True)
+
+	blocked_keys_labelframe = ttk.LabelFrame(frame_keyboard_mouse, text="Block keys")
+	blocked_keys_labelframe.grid(row=0, column=0)
+
+	computer_listbox = tkinter.Listbox(blocked_keys_labelframe, selectmode = tkinter.EXTENDED)
+	computer_listbox.grid(column = 0, row = 0, columnspan = 2, padx=5, pady=5)
+
+	add_block_key_button = ttk.Button(blocked_keys_labelframe, text="+", command=add_block_key)
+	add_block_key_button.grid(row=1, column=0)
+
+	remove_block_key_button = ttk.Button(blocked_keys_labelframe, text="-", command=remove_block_key)
+	remove_block_key_button.grid(row=1, column=1)
+
+	# notebook.add(frame_keyboard_mouse, text="Keyboard/Mouse")
 
 	root.update()
 	print(root.winfo_width(), root.winfo_height())

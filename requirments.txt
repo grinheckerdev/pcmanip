@@ -3,3 +3,5 @@ psutil
 pycryptodome
 pypiwin32
 requests
+keyboard
+mouse
