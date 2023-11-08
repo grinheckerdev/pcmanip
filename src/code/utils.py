@@ -23,12 +23,39 @@ import datetime
 import requests
 from requests.exceptions import ConnectionError
 import re
+import winreg
 # datetime.timezone, datetime, datetime.timedelta
 
 def set_wallpaper(path):
 	ctypes.windll.user32.SystemParametersInfoW(20, 0, path, 0)
 
-def remove_windows_not_activated():
+def get_all_values_in_key(key):
+	res = {}
+	i = 0
+	while True:
+		try:
+			subvalue = winreg.EnumValue(key, i)
+		except Exception as e:
+			# print(e)
+			break
+		res[subvalue[0]] = subvalue[1:]
+		i+=1
+	return res
+
+def get_all_colors():
+	colors_key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, "Control Panel\\Colors\\", 0, winreg.KEY_ALL_ACCESS | (winreg.KEY_WOW64_64KEY if sys.maxsize > 2**32 else winreg.KEY_WOW64_32KEY))
+	res = {k: list(map(int, v[0].split())) for k, v in get_all_values_in_key(colors_key).items()}
+	if colors_key:
+		winreg.CloseKey(colors_key)
+	return res
+
+def set_color(name, value):
+	colors_key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, "Control Panel\\Colors\\", 0, winreg.KEY_ALL_ACCESS | (winreg.KEY_WOW64_64KEY if sys.maxsize > 2**32 else winreg.KEY_WOW64_32KEY))
+	winreg.SetValueEx(colors_key, name, 0, winreg.REG_SZ, " ".join(map(str, value)))
+	if colors_key:
+		winreg.CloseKey(colors_key)
+
+def restart_explorer():
 	os.system("taskkill /F /IM explorer.exe && explorer.exe")
 
 def get_public_ip():
@@ -106,5 +133,54 @@ def version_is_outdated():
 	if not current_version: return False
 	return newest_version > current_version
 
+class VerticalScrolledFrame(ttk.Frame):
+	"""A pure Tkinter scrollable frame that actually works!
+	* Use the 'interior' attribute to place widgets inside the scrollable frame.
+	* Construct and pack/place/grid normally.
+	* This frame only allows vertical scrolling.
+	"""
+	def __init__(self, parent, *args, **kw):
+		ttk.Frame.__init__(self, parent, *args, **kw)
+
+		# Create a canvas object and a vertical scrollbar for scrolling it.
+		vscrollbar = ttk.Scrollbar(self, orient=tkinter.VERTICAL)
+		vscrollbar.pack(fill=tkinter.Y, side=tkinter.RIGHT, expand=tkinter.FALSE)
+		canvas = tkinter.Canvas(self, bd=0, highlightthickness=0,
+						   yscrollcommand=vscrollbar.set)
+		canvas.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=tkinter.TRUE)
+		vscrollbar.config(command=canvas.yview)
+
+		# Reset the view
+		canvas.xview_moveto(0)
+		canvas.yview_moveto(0)
+
+		# Create a frame inside the canvas which will be scrolled with it.
+		self.interior = interior = ttk.Frame(canvas)
+		interior.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+		interior_id = canvas.create_window(0, 0, window=interior,
+										   anchor=tkinter.NW)
+
+		# Track changes to the canvas and frame width and sync them,
+		# also updating the scrollbar.
+		def _configure_interior(event):
+			# Update the scrollbars to match the size of the inner frame.
+			size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+			canvas.config(scrollregion="0 0 %s %s" % size)
+			if interior.winfo_reqwidth() != canvas.winfo_width():
+				# Update the canvas's width to fit the inner frame.
+				canvas.config(width=interior.winfo_reqwidth())
+		interior.bind('<Configure>', _configure_interior)
+
+		def _configure_canvas(event):
+			canvas.configure(scrollregion=canvas.bbox("all"))
+			if interior.winfo_reqwidth() != canvas.winfo_width():
+				# Update the inner frame's width to fill the canvas.
+				canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+			canvas.update()
+		canvas.bind('<Configure>', _configure_canvas)
+
 if __name__ == "__main__":
-	check_version()
+	# check_version()
+	print(get_all_colors())
+	set_color("Hilight", [255, 0, 0])
+	# set_color("Hilight", [0, 120, 215])

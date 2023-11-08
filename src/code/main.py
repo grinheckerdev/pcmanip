@@ -11,7 +11,7 @@ import ctypes
 import sv_ttk
 import traceback
 import shlex
-from tkinter import filedialog, scrolledtext, messagebox
+from tkinter import filedialog, scrolledtext, messagebox, colorchooser
 import psutil
 from utils import *
 import platform
@@ -46,7 +46,10 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.7"
+__version__ = "v0.1.0.8"
+
+#TODO:
+#     make key_select_popup
 
 class Argv:
 	def __init__(self, data):
@@ -339,25 +342,42 @@ def set_flag1(v):
 	flag1 = v
 
 def key_select_popup(block_keys = []):
-	global flag1, choice
-	flag1 = False
-	choice = None
-	r = tkinter.Tk()
-	r.update()
-	l = ttk.Label(r, text="> Press any key <")
-	l.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-	b1 = ttk.Button(r, text="Ok", command = lambda: set_flag1(True))
-	b1.grid(row=1, column=0)
-	b2 = ttk.Button(r, text="Cancel", command = lambda: set_flag1(True))
-	b2.grid(row=1, column=0)
-	r.update()
-	x = threading.Thread(target=key_and_set_flag, args=(l,))
-	x.start()
-	while not flag1:
-		root.
-	r.destroy()
-	return choice
+	# global flag1, choice
+	# flag1 = False
+	# choice = None
+	# r = tkinter.Tk()
+	# r.update()
+	# l = ttk.Label(r, text="> Press any key <")
+	# l.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+	# b1 = ttk.Button(r, text="Ok", command = lambda: set_flag1(True))
+	# b1.grid(row=1, column=0)
+	# b2 = ttk.Button(r, text="Cancel", command = lambda: set_flag1(True))
+	# b2.grid(row=1, column=0)
+	# r.update()
+	# x = threading.Thread(target=key_and_set_flag, args=(l,))
+	# x.start()
+	# while not flag1:
+	# 	root.
+	# r.destroy()
+	# return choice
+	pass
 
+def change_color_gui(name, b):
+	color = colorchooser.askcolor(b["bg"])[0]
+	if color:
+		set_color(name, color)
+		avg = sum(color)/len(color)
+		if avg > 128:
+			inverse = 0
+		else:
+			inverse = 255
+		bg = '#{:02x}{:02x}{:02x}'.format(*color)
+		fg = '#{:02x}{:02x}{:02x}'.format(inverse, inverse, inverse)
+		b.config(bg = bg, fg = fg, activebackground = bg, activeforeground = fg)
+
+def restart_explorer_gui():
+	x = threading.Thread(target=restart_explorer)
+	x.start()
 
 def add_block_key():
 	result = key_select_popup()
@@ -445,6 +465,35 @@ def main_gui(argv):
 	open_wallpaper_button = ttk.Button(wallpaper_labelframe, text = "Set wallpaper", command = choose_and_set_wallpaper)
 	open_wallpaper_button.pack()
 
+
+	colors_labelframe = ttk.LabelFrame(frame_personalization, text="Colors")
+	colors_labelframe.grid(row=0, column=1)
+
+	colors_scrolling_frame = VerticalScrolledFrame(colors_labelframe)
+	colors_scrolling_frame.pack()
+
+	colors = get_all_colors()
+	print(colors)
+
+	for k, v in colors.items():
+		print(k, v)
+		avg = sum(v)/len(v)
+		if avg > 128:
+			inverse = 0
+		else:
+			inverse = 255
+		bg = '#{:02x}{:02x}{:02x}'.format(*v)
+		fg = '#{:02x}{:02x}{:02x}'.format(inverse, inverse, inverse)
+		b = tkinter.Button(colors_scrolling_frame.interior, text = k, bg = bg, fg = fg, activebackground = bg, activeforeground = fg)
+		b.config(command = lambda k=k, b=b: change_color_gui(k, b))
+		b.pack()
+
+	# apply_colors_button = ttk.Button(colors_labelframe, text = "Apply", command = restart_explorer_gui)
+	# apply_colors_button.pack()
+
+	apply_colors_label = ttk.Label(colors_labelframe, text="To apply settings reboot.")
+	apply_colors_label.pack()
+
 	notebook.add(frame_personalization, text="Personalization")
 
 	################################################################################################################################################
@@ -464,20 +513,20 @@ def main_gui(argv):
 
 	################################################################################################################################################
 
-	frame_keyboard_mouse = ttk.Frame(notebook)
-	frame_keyboard_mouse.pack(fill=tkinter.BOTH, expand=True)
+	# frame_keyboard_mouse = ttk.Frame(notebook)
+	# frame_keyboard_mouse.pack(fill=tkinter.BOTH, expand=True)
 
-	blocked_keys_labelframe = ttk.LabelFrame(frame_keyboard_mouse, text="Block keys")
-	blocked_keys_labelframe.grid(row=0, column=0)
+	# blocked_keys_labelframe = ttk.LabelFrame(frame_keyboard_mouse, text="Block keys")
+	# blocked_keys_labelframe.grid(row=0, column=0)
 
-	computer_listbox = tkinter.Listbox(blocked_keys_labelframe, selectmode = tkinter.EXTENDED)
-	computer_listbox.grid(column = 0, row = 0, columnspan = 2, padx=5, pady=5)
+	# computer_listbox = tkinter.Listbox(blocked_keys_labelframe, selectmode = tkinter.EXTENDED)
+	# computer_listbox.grid(column = 0, row = 0, columnspan = 2, padx=5, pady=5)
 
-	add_block_key_button = ttk.Button(blocked_keys_labelframe, text="+", command=add_block_key)
-	add_block_key_button.grid(row=1, column=0)
+	# add_block_key_button = ttk.Button(blocked_keys_labelframe, text="+", command=add_block_key)
+	# add_block_key_button.grid(row=1, column=0)
 
-	remove_block_key_button = ttk.Button(blocked_keys_labelframe, text="-", command=remove_block_key)
-	remove_block_key_button.grid(row=1, column=1)
+	# remove_block_key_button = ttk.Button(blocked_keys_labelframe, text="-", command=remove_block_key)
+	# remove_block_key_button.grid(row=1, column=1)
 
 	# notebook.add(frame_keyboard_mouse, text="Keyboard/Mouse")
 
