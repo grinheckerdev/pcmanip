@@ -18,9 +18,10 @@ import platform
 import requests
 import keyboard
 import mouse
+import multiprocessing
 
 hosts = []
-root = notebook = frame_remote_manip = computer_listbox = scan_computers_button = shutdown_labelframe = restart_checkbox = restart_var = force_var = force_checkbox = time_var = time_spinbox = shutdown_button = info_labelframe = info_label = frame_personalization = wallpaper_labelframe = open_wallpaper_button = frame_computer_info = computer_info_text = send_message_labelframe = message_text_scrolledtext = send_message_button = None
+root = notebook = frame_remote_manip = computer_listbox = scan_computers_button = shutdown_labelframe = restart_checkbox = restart_var = force_var = force_checkbox = time_var = time_spinbox = shutdown_button = info_labelframe = info_label = frame_personalization = wallpaper_labelframe = open_wallpaper_button = frame_computer_info = computer_info_text = send_message_labelframe = message_text_scrolledtext = send_message_button = blocked_keys_listbox = None
 
 global param_names, param_syntax
 param_names = {
@@ -46,7 +47,9 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.8"
+__version__ = "v0.1.0.9"
+
+previous_blocked_keys = []
 
 #TODO:
 #     make key_select_popup
@@ -329,38 +332,50 @@ def show_version_warning():
 	messagebox.showwarning(title="Version outdated",
 				message=f"This version of pcmanip is outdated!\nCurrent version: {cur_ver}\nNewest version: {new_ver}\nDownload new version from github.com/grinheckerdev/pcmanip")
 
-def key_and_set_flag(l):
+def key_pressed_set_choice(key):
 	global choice
-	while True:
-		key = keyboard.read_key(suppress=True)
-		choice = key
-		l["text"] = f"> {key} <"
+	choice = key.name
 
+def update_keys():
+	global previous_blocked_keys
+	blocked_keys = blocked_keys_listbox.get(0, END)
+	print(blocked_keys, previous_blocked_keys)
+	previous_blocked_keys = blocked_keys
 
 def set_flag1(v):
 	global flag1
 	flag1 = v
 
 def key_select_popup(block_keys = []):
-	# global flag1, choice
-	# flag1 = False
-	# choice = None
-	# r = tkinter.Tk()
-	# r.update()
-	# l = ttk.Label(r, text="> Press any key <")
-	# l.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
-	# b1 = ttk.Button(r, text="Ok", command = lambda: set_flag1(True))
-	# b1.grid(row=1, column=0)
-	# b2 = ttk.Button(r, text="Cancel", command = lambda: set_flag1(True))
-	# b2.grid(row=1, column=0)
-	# r.update()
-	# x = threading.Thread(target=key_and_set_flag, args=(l,))
-	# x.start()
-	# while not flag1:
-	# 	root.
-	# r.destroy()
-	# return choice
-	pass
+	global flag1, choice
+	flag1 = False
+	choice = None
+	r = tkinter.Tk()
+	r.wm_attributes("-toolwindow", 1)
+	r.update()
+	l = ttk.Label(r, text="> Press any key <")
+	l.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+	b1 = ttk.Button(r, text="Ok", command = lambda: set_flag1(True))
+	b1.grid(row=1, column=0)
+	b2 = ttk.Button(r, text="Cancel", command = lambda: set_flag1(True))
+	b2.grid(row=1, column=1)
+
+	r.focus_force()
+	r.update()
+
+	# process = multiprocessing.Process(target=key_and_set_flag, args=(l,))
+	# process.start()
+	keyboard.hook(key_pressed_set_choice)
+	try:
+		while not flag1 and r.winfo_exists():
+			r.update()
+			if choice:
+				l["text"] = f"> {choice} <"
+		r.destroy()
+	except tkinter.TclError:
+		pass
+	# process.terminate()
+	return choice
 
 def change_color_gui(name, b):
 	color = colorchooser.askcolor(b["bg"])[0]
@@ -381,16 +396,24 @@ def restart_explorer_gui():
 
 def add_block_key():
 	result = key_select_popup()
+	if result:
+		blocked_keys_listbox.insert(tkinter.END, result)
+		keyboard.block_key(result)
 
 def remove_block_key():
-	pass
+	for i in blocked_keys_listbox.curselection():
+		key = blocked_keys_listbox.get(i)
+		if key:
+			keyboard.unblock_key(key)
+			blocked_keys_listbox.delete(i)
+
+def check_version_gui():
+	version_outdated = version_is_outdated()
+	if version_outdated:
+		show_version_warning()
 
 def main_gui(argv):
-	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button
-	
-	if version_outdated:
-		x = threading.Thread(target = show_version_warning)
-		x.start()
+	global root, notebook, frame_remote_manip, computer_listbox, scan_computers_button, shutdown_labelframe, restart_checkbox, restart_var, force_var, force_checkbox, time_var, time_spinbox, shutdown_button, info_labelframe, info_label, computer_info_textframe_personalization, wallpaper_labelframe, open_wallpaper_button, frame_computer_info, computer_info_text, send_message_labelframe, message_text_scrolledtext, send_message_button, blocked_keys_listbox
 
 	root = tkinter.Tk()
 	root.title("PCmanip")
@@ -486,7 +509,7 @@ def main_gui(argv):
 		fg = '#{:02x}{:02x}{:02x}'.format(inverse, inverse, inverse)
 		b = tkinter.Button(colors_scrolling_frame.interior, text = k, bg = bg, fg = fg, activebackground = bg, activeforeground = fg)
 		b.config(command = lambda k=k, b=b: change_color_gui(k, b))
-		b.pack()
+		b.pack(fill = tkinter.X, expand = True)
 
 	# apply_colors_button = ttk.Button(colors_labelframe, text = "Apply", command = restart_explorer_gui)
 	# apply_colors_button.pack()
@@ -513,22 +536,22 @@ def main_gui(argv):
 
 	################################################################################################################################################
 
-	# frame_keyboard_mouse = ttk.Frame(notebook)
-	# frame_keyboard_mouse.pack(fill=tkinter.BOTH, expand=True)
+	frame_keyboard_mouse = ttk.Frame(notebook)
+	frame_keyboard_mouse.pack(fill=tkinter.BOTH, expand=True)
 
-	# blocked_keys_labelframe = ttk.LabelFrame(frame_keyboard_mouse, text="Block keys")
-	# blocked_keys_labelframe.grid(row=0, column=0)
+	blocked_keys_labelframe = ttk.LabelFrame(frame_keyboard_mouse, text="Block keys")
+	blocked_keys_labelframe.grid(row=0, column=0)
 
-	# computer_listbox = tkinter.Listbox(blocked_keys_labelframe, selectmode = tkinter.EXTENDED)
-	# computer_listbox.grid(column = 0, row = 0, columnspan = 2, padx=5, pady=5)
+	blocked_keys_listbox = tkinter.Listbox(blocked_keys_labelframe, selectmode = tkinter.EXTENDED)
+	blocked_keys_listbox.grid(column = 0, row = 0, columnspan = 2, padx=5, pady=5)
 
-	# add_block_key_button = ttk.Button(blocked_keys_labelframe, text="+", command=add_block_key)
-	# add_block_key_button.grid(row=1, column=0)
+	add_block_key_button = ttk.Button(blocked_keys_labelframe, text="+", command=add_block_key)
+	add_block_key_button.grid(row=1, column=0)
 
-	# remove_block_key_button = ttk.Button(blocked_keys_labelframe, text="-", command=remove_block_key)
-	# remove_block_key_button.grid(row=1, column=1)
+	remove_block_key_button = ttk.Button(blocked_keys_labelframe, text="-", command=remove_block_key)
+	remove_block_key_button.grid(row=1, column=1)
 
-	# notebook.add(frame_keyboard_mouse, text="Keyboard/Mouse")
+	notebook.add(frame_keyboard_mouse, text="Keyboard/Mouse")
 
 	root.update()
 	print(root.winfo_width(), root.winfo_height())
@@ -537,7 +560,8 @@ def main_gui(argv):
 	root.mainloop()
 
 if __name__ == '__main__':
-	version_outdated = version_is_outdated()
+	x = threading.Thread(target=check_version_gui)
+	x.start()
 	if "-c" in sys.argv[1:]:
 		main_old(parse_argv(sys.argv[1:]))
 	else:
