@@ -51,9 +51,6 @@ __version__ = "v0.1.0.9"
 
 previous_blocked_keys = []
 
-#TODO:
-#     make key_select_popup
-
 class Argv:
 	def __init__(self, data):
 		self.data = []
@@ -336,11 +333,11 @@ def key_pressed_set_choice(key):
 	global choice
 	choice = key.name
 
-def update_keys():
-	global previous_blocked_keys
-	blocked_keys = blocked_keys_listbox.get(0, END)
-	print(blocked_keys, previous_blocked_keys)
-	previous_blocked_keys = blocked_keys
+# def update_keys():
+# 	global previous_blocked_keys
+# 	blocked_keys = blocked_keys_listbox.get(0, END)
+# 	print(blocked_keys, previous_blocked_keys)
+# 	previous_blocked_keys = blocked_keys
 
 def set_flag1(v):
 	global flag1
@@ -352,6 +349,7 @@ def key_select_popup(block_keys = []):
 	choice = None
 	r = tkinter.Tk()
 	r.wm_attributes("-toolwindow", 1)
+	r.title("Choose key")
 	r.update()
 	l = ttk.Label(r, text="> Press any key <")
 	l.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
@@ -365,7 +363,6 @@ def key_select_popup(block_keys = []):
 
 	# process = multiprocessing.Process(target=key_and_set_flag, args=(l,))
 	# process.start()
-	keyboard.hook(key_pressed_set_choice)
 	try:
 		while not flag1 and r.winfo_exists():
 			r.update()
@@ -396,16 +393,23 @@ def restart_explorer_gui():
 
 def add_block_key():
 	result = key_select_popup()
-	if result:
+	if result and result not in blocked_keys_listbox.get(0, tkinter.END):
 		blocked_keys_listbox.insert(tkinter.END, result)
 		keyboard.block_key(result)
 
-def remove_block_key():
-	for i in blocked_keys_listbox.curselection():
+def remove_block_key(failed=[]):
+	failed_new = []
+	for i in list(blocked_keys_listbox.curselection())+failed:
 		key = blocked_keys_listbox.get(i)
 		if key:
-			keyboard.unblock_key(key)
-			blocked_keys_listbox.delete(i)
+			try:
+				keyboard.unblock_key(key)
+				blocked_keys_listbox.delete(i)
+			except KeyError:
+				pass
+		else:
+			failed_new.append(i)
+	root.after(30, remove_block_key, failed_new)
 
 def check_version_gui():
 	version_outdated = version_is_outdated()
@@ -472,7 +476,7 @@ def main_gui(argv):
 	info_labelframe = ttk.LabelFrame(frame_remote_manip, text="Info")
 	info_labelframe.grid(column = 3, row = 0, pady=5)
 
-	info_label = tkinter.Label(info_labelframe, text=f"Your public IP: {get_public_ip()}\nYour local IP: {get_local_ip()}\nIP: -\n Name: -")
+	info_label = ttk.Label(info_labelframe, text=f"Your public IP: {get_public_ip()}\nYour local IP: {get_local_ip()}\nIP: -\n Name: -")
 	info_label.pack(fill = tkinter.BOTH)
 
 	notebook.add(frame_remote_manip, text="Remote manipulation")
@@ -551,6 +555,22 @@ def main_gui(argv):
 	remove_block_key_button = ttk.Button(blocked_keys_labelframe, text="-", command=remove_block_key)
 	remove_block_key_button.grid(row=1, column=1)
 
+
+	key_bindings_scrolling_frame = VerticalScrolledFrame(frame_keyboard_mouse)
+	key_bindings_scrolling_frame.grid(row=0, column=1)
+
+
+	sample_key_bindings_frame = ttk.Frame(key_bindings_scrolling_frame.interior)
+	sample_key_bindings_frame.pack(anchor = tkinter.NW, fill = tkinter.X, expand=True)
+	key_button = ttk.Button(sample_key_bindings_frame, text = "space")
+	key_button.grid(row=0, column=0)
+	action_combobox = ttk.OptionMenu(sample_key_bindings_frame, tkinter.StringVar(), "enter keys", "enter keys", "press key", "open file", "open topmost pcmanip")
+	action_combobox.grid(row=0, column=1)
+	action_parameters = ttk.Frame()
+
+
+	# frame_keyboard_mouse.columnconfigure(1, minsize=80)
+
 	notebook.add(frame_keyboard_mouse, text="Keyboard/Mouse")
 
 	root.update()
@@ -560,9 +580,11 @@ def main_gui(argv):
 	root.mainloop()
 
 if __name__ == '__main__':
+	keyboard.hook(key_pressed_set_choice)
 	x = threading.Thread(target=check_version_gui)
 	x.start()
-	if "-c" in sys.argv[1:]:
-		main_old(parse_argv(sys.argv[1:]))
+	argv = parse_argv(sys.argv[1:])
+	if "-c" in argv:
+		main_old(argv)
 	else:
-		main_gui(parse_argv(sys.argv[1:]))
+		main_gui(argv)
