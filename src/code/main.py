@@ -19,6 +19,7 @@ import requests
 import keyboard
 import mouse
 import multiprocessing
+from pprint import pprint
 
 hosts = []
 root = notebook = frame_remote_manip = computer_listbox = scan_computers_button = shutdown_labelframe = restart_checkbox = restart_var = force_var = force_checkbox = time_var = time_spinbox = shutdown_button = info_labelframe = info_label = frame_personalization = wallpaper_labelframe = open_wallpaper_button = frame_computer_info = computer_info_text = send_message_labelframe = message_text_scrolledtext = send_message_button = blocked_keys_listbox = None
@@ -30,6 +31,17 @@ param_names = {
 	"-d": "--dark",
 	"-c": "--console",
 	"--tm": "--topmost",
+	"-h": "--help",
+	"--help_me_please_i_am_so_lost": "--help"
+}
+
+param_descriptions = {
+	"--sunvalley": "Turns on the sunvalley ttk theme for the GUI.",
+	"--light": "Turns the light mode on if the --sunvalley flag is set.",
+	"--dark": "Turns the dark mode on if the --sunvalley flag is set.",
+	"--console": "Console mode (currently unavailable).",
+	"--topmost": "Makes window always stay on top.",
+	"--help": "Displays help."
 }
 
 for v in param_names.copy().values():
@@ -47,7 +59,7 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.10"
+__version__ = "v0.1.0.11"
 
 previous_blocked_keys = []
 
@@ -91,7 +103,7 @@ def main_old(argv):
 	mask = get_subnet_mask()
 	cidr = get_cidr(mask)
 
-	print(local_ip, public_ip, mask, cidr)
+	# print(local_ip, public_ip, mask, cidr)
 
 	interface = ipaddress.ip_interface(public_ip+"/"+str(cidr))
 
@@ -166,7 +178,21 @@ def update_info(event):
 		info_label.configure(text=f"Your public IP: {get_public_ip()}\nYour local IP: {get_local_ip()}\nIP: {host[0]}\n Name: {host[1]}")
 
 def show_help():
-	print("This is help. Maybe.", file = sys.stderr)
+	# print("This is help. Maybe.", file = sys.stderr)
+	print("\nArguments and flags:\n")
+	for param, syntax in param_syntax.items():
+		alternatives = [k for k, v in param_names.items() if v == param and k != param]
+		if "--help_me_please_i_am_so_lost" in alternatives:
+			alternatives.remove("--help_me_please_i_am_so_lost")
+		# print(param, alternatives, syntax)
+		if syntax["params"]:
+			print(f"  Argument {param}:")
+		else:
+			print(f"  Flag {param}:")
+		print("    Alternatives:", " ".join(alternatives))
+		descr = "\n".join(["      "+l for l in param_descriptions[param].split("\n")])
+		print("    Description:\n", descr, sep="")
+		print()
 
 def unpack_argv(argv):
 	try:
@@ -258,7 +284,7 @@ def update_text_about_computer():
 	# add_text_computer_info(f"")
 
 def parse_argv(argv):
-	print(argv)
+	# print(argv)
 	if not argv: return Argv(argv)
 	new_argv = unpack_argv(argv)
 	if new_argv is None:
@@ -496,34 +522,37 @@ def main_gui(argv):
 	open_wallpaper_button = ttk.Button(wallpaper_labelframe, text = "Set wallpaper", command = choose_and_set_wallpaper)
 	open_wallpaper_button.pack()
 
+	try:
+		colors = get_all_colors()
 
-	colors_labelframe = ttk.LabelFrame(frame_personalization, text="Colors")
-	colors_labelframe.grid(row=0, column=1)
+		colors_labelframe = ttk.LabelFrame(frame_personalization, text="Colors")
+		colors_labelframe.grid(row=0, column=1)
 
-	colors_scrolling_frame = VerticalScrolledFrame(colors_labelframe)
-	colors_scrolling_frame.pack()
+		colors_scrolling_frame = VerticalScrolledFrame(colors_labelframe)
+		colors_scrolling_frame.pack()
 
-	colors = get_all_colors()
-	print(colors)
+		# print(colors)
 
-	for k, v in colors.items():
-		print(k, v)
-		avg = sum(v)/len(v)
-		if avg > 128:
-			inverse = 0
-		else:
-			inverse = 255
-		bg = '#{:02x}{:02x}{:02x}'.format(*v)
-		fg = '#{:02x}{:02x}{:02x}'.format(inverse, inverse, inverse)
-		b = tkinter.Button(colors_scrolling_frame.interior, text = k, bg = bg, fg = fg, activebackground = bg, activeforeground = fg)
-		b.config(command = lambda k=k, b=b: change_color_gui(k, b))
-		b.pack(fill = tkinter.X, expand = True)
+		for k, v in colors.items():
+			print(k, v)
+			avg = sum(v)/len(v)
+			if avg > 128:
+				inverse = 0
+			else:
+				inverse = 255
+			bg = '#{:02x}{:02x}{:02x}'.format(*v)
+			fg = '#{:02x}{:02x}{:02x}'.format(inverse, inverse, inverse)
+			b = tkinter.Button(colors_scrolling_frame.interior, text = k, bg = bg, fg = fg, activebackground = bg, activeforeground = fg)
+			b.config(command = lambda k=k, b=b: change_color_gui(k, b))
+			b.pack(fill = tkinter.X, expand = True)
 
-	# apply_colors_button = ttk.Button(colors_labelframe, text = "Apply", command = restart_explorer_gui)
-	# apply_colors_button.pack()
+		# apply_colors_button = ttk.Button(colors_labelframe, text = "Apply", command = restart_explorer_gui)
+		# apply_colors_button.pack()
 
-	apply_colors_label = ttk.Label(colors_labelframe, text="To apply settings reboot.")
-	apply_colors_label.pack()
+		apply_colors_label = ttk.Label(colors_labelframe, text="To apply settings reboot.")
+		apply_colors_label.pack()
+	except:
+		traceback.print_exc()
 
 	notebook.add(frame_personalization, text="Personalization")
 
@@ -589,7 +618,9 @@ if __name__ == '__main__':
 	x = threading.Thread(target=check_version_gui)
 	x.start()
 	argv = parse_argv(sys.argv[1:])
-	if "-c" in argv:
-		main_old(argv)
+	if argv["--help"]:
+		show_help()
+	elif argv["--console"]:
+		main(argv)
 	else:
 		main_gui(argv)
