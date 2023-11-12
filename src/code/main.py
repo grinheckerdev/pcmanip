@@ -47,7 +47,7 @@ for v in param_names.copy().values():
 
 # print(param_names, param_syntax)
 
-__version__ = "v0.1.0.9"
+__version__ = "v0.1.0.10"
 
 previous_blocked_keys = []
 
@@ -409,7 +409,9 @@ def remove_block_key(failed=[]):
 				pass
 		else:
 			failed_new.append(i)
-	root.after(30, remove_block_key, failed_new)
+	if failed_new:
+		root.after(30, remove_block_key, failed_new)
+	blocked_keys_listbox.focus_force()
 
 def check_version_gui():
 	version_outdated = version_is_outdated()
@@ -547,6 +549,7 @@ def main_gui(argv):
 	blocked_keys_labelframe.grid(row=0, column=0)
 
 	blocked_keys_listbox = tkinter.Listbox(blocked_keys_labelframe, selectmode = tkinter.EXTENDED)
+	# blocked_keys_listbox["command"] = blocked_keys_listbox.focus_force
 	blocked_keys_listbox.grid(column = 0, row = 0, columnspan = 2, padx=5, pady=5)
 
 	add_block_key_button = ttk.Button(blocked_keys_labelframe, text="+", command=add_block_key)
@@ -556,17 +559,17 @@ def main_gui(argv):
 	remove_block_key_button.grid(row=1, column=1)
 
 
-	key_bindings_scrolling_frame = VerticalScrolledFrame(frame_keyboard_mouse)
-	key_bindings_scrolling_frame.grid(row=0, column=1)
+	# key_bindings_scrolling_frame = VerticalScrolledFrame(frame_keyboard_mouse)
+	# key_bindings_scrolling_frame.grid(row=0, column=1)
 
 
-	sample_key_bindings_frame = ttk.Frame(key_bindings_scrolling_frame.interior)
-	sample_key_bindings_frame.pack(anchor = tkinter.NW, fill = tkinter.X, expand=True)
-	key_button = ttk.Button(sample_key_bindings_frame, text = "space")
-	key_button.grid(row=0, column=0)
-	action_combobox = ttk.OptionMenu(sample_key_bindings_frame, tkinter.StringVar(), "enter keys", "enter keys", "press key", "open file", "open topmost pcmanip")
-	action_combobox.grid(row=0, column=1)
-	action_parameters = ttk.Frame()
+	# sample_key_bindings_frame = ttk.Frame(key_bindings_scrolling_frame.interior)
+	# sample_key_bindings_frame.pack(anchor = tkinter.NW, fill = tkinter.X, expand=True)
+	# key_button = ttk.Button(sample_key_bindings_frame, text = "space")
+	# key_button.grid(row=0, column=0)
+	# action_combobox = ttk.OptionMenu(sample_key_bindings_frame, tkinter.StringVar(), "enter keys", "enter keys", "press key", "open file", "open topmost pcmanip")
+	# action_combobox.grid(row=0, column=1)
+	# action_parameters = ttk.Frame()
 
 
 	# frame_keyboard_mouse.columnconfigure(1, minsize=80)
