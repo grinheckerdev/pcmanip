@@ -47,6 +47,7 @@ In the remote manipulation tab you can remotely manipulate other windows PC's
 
 ### Personaliztion
 ![personaliztion window](https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/images/windows_personalization_showcase.png)
+
 This tab allows you to personalize your PC.
 #### Features:
 
@@ -55,6 +56,7 @@ This tab allows you to personalize your PC.
 
 ### Computer / system info
 ![enter image description here](https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/images/windows_computer_info_showcase.png)
+
 This tab allows you to view system info.
 #### Features:
 
