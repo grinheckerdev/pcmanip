@@ -232,7 +232,9 @@ def update_text_about_computer():
 	add_text_computer_info(f"CPU architecture: {platform.machine()}")
 
 	add_text_computer_info(f"\nOTHER INFO:")
-	add_text_computer_info(f"Boot time: {round(psutil.boot_time(), 2)}")
+	dt = datetime.datetime.fromtimestamp(psutil.boot_time())
+	dt_formatted = dt.strftime("%c")
+	add_text_computer_info(f"Boot time: {dt_formatted}")
 
 	power_info = psutil.sensors_battery()
 	add_text_computer_info(f"\nBATTERY INFO:")
