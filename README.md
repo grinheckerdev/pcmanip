@@ -55,7 +55,7 @@ This tab allows you to personalize your PC.
  2. Set system colors (works on windows)
 
 ### Computer / system info
-![enter image description here](https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/images/windows_computer_info_showcase.png)
+![computer / system info window](https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/images/windows_computer_info_showcase.png)
 
 This tab allows you to view system info.
 #### Features:
@@ -75,3 +75,15 @@ This tab allows you to view system info.
  13. Is power plugged in (works if you have a battery)
  14. Battery percentage (works if you have a battery)
  15. Estimated seconds (works if you have a battery)
+
+### Keyboard/Mouse
+![keyboard / mouse window](https://raw.githubusercontent.com/grinheckerdev/pcmanip/main/images/windows_keyboard_mouse_showcase.png)
+
+The keyboard / mouse tab allows you to manipulate the keyboard and mouse.
+#### Features:
+
+ 1. Blocking keys
+
+## TODO
+
+ - [ ] Make key remapping and hotkeys feature
